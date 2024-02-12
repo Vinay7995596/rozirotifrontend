@@ -14,7 +14,7 @@ function App() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/transactions');
+      const response = await axios.get('https://backend-gd98.onrender.com/get/transactions');
       setTransactions(response.data);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -24,7 +24,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://backend-gd98.onrender.com/', { date, type, amount });
+      await axios.post('https://backend-gd98.onrender.com/post/transactions', { date, type, amount });
       fetchTransactions(); // Fetch transactions after adding a new one
       setDate('');
       setType('');
