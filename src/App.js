@@ -1,23 +1,75 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './App.css'
 
 function App() {
+  const [transactions, setTransactions] = useState([]);
+  const [date, setDate] = useState('');
+  const [type, setType] = useState('');
+  const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/transactions');
+      setTransactions(response.data);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('https://backend-gd98.onrender.com/', { date, type, amount });
+      fetchTransactions(); // Fetch transactions after adding a new one
+      setDate('');
+      setType('');
+      setAmount('');
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <form onSubmit={handleSubmit} className='heading'>
+      <h1>Expense Tracker</h1>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <select value={type} onChange={(e) => setType(e.target.value)} required>
+          <option value="">Select Type</option>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" required />
+        <button type="submit">Add Transaction</button>
+      </form>
+      <h2>Transactions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Transaction Type</th>
+            <th>Amount</th>
+            <th>Remaining Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map(transaction => (
+            <tr key={transaction.id}>
+              <td>{new Date(transaction.date).toLocaleDateString()}</td>
+              <td>{transaction.type}</td>
+              <td style={{ color: transaction.type === 'expense' ? 'red' : 'green' }}>
+                {transaction.amount}
+              </td>
+              <td>{transaction.remaining_amount}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
