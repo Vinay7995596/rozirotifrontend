@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'
+import './App.css';
+import LoginForm from './login';
 
 function App() {
   const [transactions, setTransactions] = useState([]);
   const [date, setDate] = useState('');
   const [type, setType] = useState('');
   const [amount, setAmount] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    if (loggedIn) {
+      fetchTransactions();
+    }
+  }, [loggedIn]);
 
   const fetchTransactions = async () => {
     try {
@@ -24,7 +28,10 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      await axios.post('https://vinay7995596.github.io/rozirotibackend/', { date, type, amount });
+
       await axios.post('https://backend-gd98.onrender.com/post/transactions', { date, type, amount });
+
       fetchTransactions(); // Fetch transactions after adding a new one
       setDate('');
       setType('');
@@ -34,18 +41,40 @@ function App() {
     }
   };
 
+  const handleLogin = (username, password) => {
+    if (username === 'Ragichattu vinay' && password === 'Vinay1919@') {
+      setLoggedIn(true);
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  if (!loggedIn) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
   return (
     <div className="App">
       <form onSubmit={handleSubmit} className='heading'>
-      <h1>Expense Tracker</h1>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        <select value={type} onChange={(e) => setType(e.target.value)} required>
-          <option value="">Select Type</option>
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" required />
-        <button type="submit">Add Transaction</button>
+        <h1>Expense Tracker</h1>
+        <div className='container-flex'>
+        <div className='text_area1'>
+          <input className='text_input1' type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        </div>
+        <div className='text_area1'>
+          <select className='text_input1' value={type} onChange={(e) => setType(e.target.value)} required>
+            <option value="">Select Type</option>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div className='text_area1'>
+          <input className='text_input1' type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount" required />
+        </div>
+        <div>
+        <button className='button1'  type="submit">Add Transaction</button>
+        </div>
+        </div>
       </form>
       <h2>Transactions</h2>
       <table>
@@ -75,3 +104,4 @@ function App() {
 }
 
 export default App;
+
